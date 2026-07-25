@@ -1,7 +1,7 @@
 {
-  "name": "2605 — Cab Hisaab Kitaab",
+  "name": "2605",
   "short_name": "2605",
-  "description": "Cab earnings & expense tracker for Ola, Uber and Rapido drivers.",
+  "description": "",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2605 — Cab Hisaab</title>
+
+<!-- PWA: installable, works offline, opens like a native app -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1108">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="2605">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== SPLASH ===== -->
+<div id="splash">
+  <div class="splash-dial">
+    <div class="splash-needle"></div>
+    <span>2605</span>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-plate">2605</span>
+      <span class="brand-sub">Cab Hisaab Kitaab</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="incognitoBtn" class="icon-btn" title="Hide amounts" aria-label="Toggle incognito mode">
+        <svg viewBox="0 0 24 24" class="eye-open"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+        <svg viewBox="0 0 24 24" class="eye-closed" style="display:none"><path d="M2 4.27 3.28 3 21 20.72 19.73 22l-3.02-3.02c-1.46.6-3.03.94-4.71.94-7 0-10-7-10-7a17.6 17.6 0 0 1 4.53-5.61L2 4.27zM12 7a5 5 0 0 1 5 5c0 .6-.12 1.17-.33 1.69l-1.55-1.55A2.98 2.98 0 0 0 12 9a3 3 0 0 0-.83.12L9.62 7.57C10.36 7.2 11.16 7 12 7zm0 10c-4.9 0-7.6-3.86-8.42-5.24a15.6 15.6 0 0 1 2.6-3.13l1.5 1.5A5 5 0 0 0 14.13 16l1.6 1.6A9.7 9.7 0 0 1 12 17z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="views">
+
+    <!-- ===== DASHBOARD ===== -->
+    <section id="view-dashboard" class="view active">
+
+      <div class="gauge-cluster">
+        <div class="gauge">
+          <div class="gauge-face gauge-earning">
+            <span class="gauge-label">Total Earning</span>
+            <span class="gauge-value money" data-role="stat-earning">₹0</span>
+          </div>
+        </div>
+        <div class="gauge">
+          <div class="gauge-face gauge-expense">
+            <span class="gauge-label">Total Expense</span>
+            <span class="gauge-value money" data-role="stat-expense">₹0</span>
+          </div>
+        </div>
+        <div class="gauge gauge-wide">
+          <div class="gauge-face gauge-profit">
+            <span class="gauge-label">Net Profit</span>
+            <span class="gauge-value money" data-role="stat-profit">₹0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pill-filters" data-role="timeframe-filters">
+        <button class="pill active" data-range="daily">Daily</button>
+        <button class="pill" data-range="weekly">Weekly</button>
+        <button class="pill" data-range="monthly">Monthly</button>
+        <button class="pill" data-range="yearly">Yearly</button>
+      </div>
+
+      <!-- Wallet Carousel -->
+      <div class="wallet-section">
+        <div class="wallet-carousel" data-role="wallet-carousel"></div>
+        <button class="ghost-btn small" data-role="add-wallet">+ Add Wallet</button>
+      </div>
+
+      <!-- Donut chart panel -->
+      <div class="panel donut-panel">
+        <div class="panel-head">
+          <h3>Is Mahine Ka Kharcha</h3>
+          <span class="panel-sub" data-role="donut-month">—</span>
+        </div>
+        <div class="donut-wrap" data-role="donut-wrap">
+          <canvas id="donutChart" width="220" height="220"></canvas>
+          <div class="donut-center" data-role="donut-center">
+            <span class="donut-center-value" data-role="donut-total">₹0</span>
+            <span class="donut-center-label">Total Kharcha</span>
+          </div>
+        </div>
+        <div class="donut-legend" data-role="donut-legend"></div>
+      </div>
+
+      <!-- Bar report -->
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Monthly Report</h3>
+        </div>
+        <canvas id="barChart" height="160"></canvas>
+      </div>
+
+    </section>
+
+    <!-- ===== ENTRY ===== -->
+    <section id="view-entry" class="view">
+      <div class="panel form-panel">
+        <div class="panel-head"><h3>Naya Entry</h3></div>
+
+        <form id="entryForm">
+          <label class="field">
+            <span>Date</span>
+            <input type="date" name="date" required>
+          </label>
+
+          <label class="field">
+            <span>Total Earning (₹)</span>
+            <input type="number" name="earning" placeholder="0" min="0" step="1" required inputmode="numeric">
+          </label>
+
+          <label class="field">
+            <span>CNG Expense (₹)</span>
+            <input type="number" name="cng" placeholder="0" min="0" step="1" inputmode="numeric">
+          </label>
+
+          <div class="field emi-field">
+            <div class="emi-row">
+              <span>Daily EMI</span>
+              <label class="switch">
+                <input type="checkbox" id="emiToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <input type="number" name="emi" id="emiAmount" value="801" min="0" step="1" inputmode="numeric">
+            <small class="hint">EMI band off karne par is entry me EMI nahi judegi.</small>
+          </div>
+
+          <label class="field">
+            <span>Other Expense (₹)</span>
+            <input type="number" name="other" placeholder="0" min="0" step="1" inputmode="numeric">
+          </label>
+
+          <label class="field">
+            <span>Note (optional)</span>
+            <input type="text" name="note" placeholder="e.g. service, challan, tyre...">
+          </label>
+
+          <input type="hidden" name="editId" value="">
+
+          <div class="entry-preview" data-role="entry-preview">
+            <span>Net for this day</span>
+            <strong data-role="entry-preview-value">₹0</strong>
+          </div>
+
+          <button type="submit" class="dial-btn" data-role="entry-submit">Entry Save Karo</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== RECORD ===== -->
+    <section id="view-record" class="view">
+
+      <div class="pill-filters" data-role="record-filters">
+        <button class="pill active" data-range="daily">Daily</button>
+        <button class="pill" data-range="weekly">Weekly</button>
+        <button class="pill" data-range="monthly">Monthly</button>
+        <button class="pill" data-range="yearly">Yearly</button>
+      </div>
+
+      <div class="record-actions">
+        <button class="chip-btn" data-role="btn-whatsapp">
+          <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.1 7c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s1 2.6 1.1 2.8c.1.2 2 3 4.8 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.3.1-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.4A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.2-.4-4.5-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>
+          WhatsApp
+        </button>
+        <button class="chip-btn" data-role="btn-pdf">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM8 13h1.5a1.5 1.5 0 0 1 0 3H8v2H6.8v-6H8v1zm5.2 4H11v-6h2.2c1.3 0 2 .9 2 3s-.7 3-2 3zm4.8 0h-1.2v-1.5H18v-1H16.8v-1.5H19V13h-2v4z"/></svg>
+          PDF
+        </button>
+        <button class="chip-btn" data-role="btn-backup">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>
+          Backup
+        </button>
+        <label class="chip-btn" for="restoreFile">
+          <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z"/></svg>
+          Restore
+          <input type="file" id="restoreFile" accept="application/json" style="display:none">
+        </label>
+      </div>
+
+      <div class="panel record-summary">
+        <div class="rs-item"><span>Earning</span><strong class="money" data-role="record-earning">₹0</strong></div>
+        <div class="rs-item"><span>Expense</span><strong class="money" data-role="record-expense">₹0</strong></div>
+        <div class="rs-item rs-profit"><span>Net</span><strong class="money" data-role="record-net">₹0</strong></div>
+      </div>
+
+      <div class="record-list" data-role="record-list"></div>
+      <div class="empty-state" data-role="record-empty" style="display:none">
+        <p>Koi entry nahi mili is period ke liye.</p>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section id="view-settings" class="view">
+
+      <div class="panel profile-panel">
+        <div class="profile-avatar">🚕</div>
+        <div class="profile-info">
+          <input class="ghost-input" id="profileName" placeholder="Aapka naam" value="Cab Driver">
+          <input class="ghost-input" id="profileEmail" placeholder="Email (optional)" value="">
+          <span class="premium-badge" data-role="premium-badge">★ Premium Member</span>
+        </div>
+      </div>
+
+      <div class="panel" id="installPanel" style="display:none">
+        <div class="panel-head"><h3>Install App</h3></div>
+        <p class="panel-sub" style="margin-bottom:10px">Ise apne phone ki home screen par app ki tarah install kar lo — full screen khulega, koi browser bar nahi.</p>
+        <button class="dial-btn" data-role="install-btn">📲 Install 2605</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Export Hub</h3></div>
+        <div class="export-grid">
+          <button class="export-tile" data-role="export-csv">
+            <span class="export-ico">CSV</span>
+            <span>Export CSV</span>
+          </button>
+          <button class="export-tile" data-role="export-xlsx">
+            <span class="export-ico">XLS</span>
+            <span>Export Excel</span>
+          </button>
+          <button class="export-tile" data-role="export-pdf-settings">
+            <span class="export-ico">PDF</span>
+            <span>Export PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>EMI Settings</h3></div>
+        <div class="field-row">
+          <span>Daily EMI Amount</span>
+          <input type="number" id="defaultEmiAmount" value="801" min="0">
+        </div>
+        <div class="field-row">
+          <span>EMI By-default ON rahe</span>
+          <label class="switch">
+            <input type="checkbox" id="defaultEmiToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Theme</h3></div>
+        <div class="field-row">
+          <span>Appearance</span>
+          <div class="seg-control" data-role="theme-seg">
+            <button data-theme="auto" class="active">Auto</button>
+            <button data-theme="light">Light</button>
+            <button data-theme="dark">Dark</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Data</h3></div>
+        <div class="field-row">
+          <span>Backup / Restore</span>
+          <div class="btn-row">
+            <button class="ghost-btn small" data-role="settings-backup">Backup</button>
+            <label class="ghost-btn small" for="restoreFile2">Restore</label>
+            <input type="file" id="restoreFile2" accept="application/json" style="display:none">
+          </div>
+        </div>
+        <div class="field-row">
+          <span>Sab data mita do</span>
+          <button class="ghost-btn small danger" data-role="clear-data">Reset</button>
+        </div>
+      </div>
+
+      <p class="app-version">2605 v1.0 · Made for the road</p>
+    </section>
+
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <nav class="bottomnav">
+    <button class="nav-btn active" data-view="dashboard">
+      <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="nav-btn" data-view="entry">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Entry</span>
+    </button>
+    <button class="nav-btn" data-view="record">
+      <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg>
+      <span>Record</span>
+    </button>
+    <button class="nav-btn" data-view="settings">
+      <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+</div>
+
+<div class="toast" data-role="toast"></div>
+
+<!-- Libraries loaded from CDN at runtime -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script src="js/store.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
